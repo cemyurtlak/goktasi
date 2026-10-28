@@ -1,0 +1,16 @@
+{
+  "name": "Göktaşından Kaç – Göktaşı Tesla",
+  "short_name": "Göktaşı",
+  "description": "Kamerayla vücut hareketlerinle oynanan göktaşından kaçma oyunu",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b1026",
+  "theme_color": "#0b1026",
+  "icons": [
+    { "src": "simgeler/simge-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "simgeler/simge-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

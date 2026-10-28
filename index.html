@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1026">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="simgeler/simge-192.png">
+  <title>Göktaşından Kaç</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E☄️%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/stil.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./lib/three/three.module.min.js",
+        "three/addons/": "./lib/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="sahne"></div>
+
+  <header class="kart baslik">
+    <h1>☄️ Göktaşı Tesla</h1>
+    <p>Vücut Hareket Yakalama</p>
+    <div id="durum" data-tur="bilgi">Yükleniyor...</div>
+  </header>
+
+  <aside id="panel" class="kart panel">
+    <button id="oyunBtn" class="oyun">▶ Oyunu Başlat</button>
+    <div class="dugmeler">
+      <button id="kameraBtn" class="ana">📷 Kamerayı Başlat</button>
+      <button id="demoBtn">🤖 Demo</button>
+      <button id="panelBtn" class="kucuk" title="Ayarları gizle/göster">⚙</button>
+      <button id="menuAcBtn" class="kucuk sadece-dokunmatik" title="Ana menü">☰</button>
+    </div>
+    <label class="satir">Kamera
+      <select id="kameraSec"><option value="">Varsayılan kamera</option></select>
+    </label>
+    <label class="satir">Algılama modeli
+      <select id="modelSec">
+        <option value="full">Dengeli (önerilen)</option>
+        <option value="lite">Hızlı – yavaş cihazlar için</option>
+      </select>
+    </label>
+    <label class="satir">Karakter
+      <select id="karakterSec">
+        <option value="robot">Robot</option>
+        <option value="iskelet">İskelet</option>
+        <option value="ikisi">İkisi birden</option>
+      </select>
+    </label>
+    <label class="anahtar"><input type="checkbox" id="ayna" checked> Ayna modu <kbd>A</kbd></label>
+    <label class="anahtar"><input type="checkbox" id="yerDegistir" checked> Yana kayma ve zıplama</label>
+    <label class="anahtar" title="Yüzün görünüyorsa önden, görünmüyorsa arkadan bakıyorsun sayılır; MediaPipe'ın sol-sağ karışıklığı buna göre düzeltilir."><input type="checkbox" id="ekranaBakar" checked> Yön düzeltme (yüze göre)</label>
+    <label class="anahtar"><input type="checkbox" id="goruntuGoster" checked> Kamera görüntüsü</label>
+    <label class="anahtar"><input type="checkbox" id="sesAcik" checked> Ses</label>
+    <label class="satir">Yumuşatma
+      <input type="range" id="yumusatma" min="0.2" max="4" step="0.1" value="1">
+    </label>
+    <div class="bilgi">
+      <span>Ekran <b id="fpsEkran">0</b> fps</span>
+      <span>Algılama <b id="fpsAlgi">0</b> fps</span>
+      <span id="islemci"></span>
+    </div>
+  </aside>
+
+  <div id="onizleme" class="kart ayna">
+    <video id="video" playsinline muted></video>
+    <canvas id="tuval"></canvas>
+  </div>
+
+  <div id="mesaj" class="kart" hidden></div>
+
+  <!-- Oyun ekranı -->
+  <div id="hud" hidden>
+    <div class="hud-ust kart">
+      <span class="hud-puan">⭐ <b id="hudPuan">0</b></span>
+      <span>Seviye <b id="hudSeviye">1</b></span>
+      <span id="hudCan">❤️❤️❤️</span>
+    </div>
+    <div id="hudGuc" class="kart" hidden>
+      <span>💪 GÜÇ MODU</span>
+      <div class="guc-cubuk"><div id="hudGucDolu"></div></div>
+    </div>
+  </div>
+  <div id="buyukMesaj"></div>
+  <div id="hasarFlas"></div>
+  <div id="ucanYazilar"></div>
+  <div id="bittiEkrani" class="kart" hidden>
+    <h2>☄️ Oyun Bitti</h2>
+    <p class="bitti-puan">Puan: <b id="bittiPuan">0</b></p>
+    <p>En yüksek: <b id="bittiRekor">0</b> <span id="yeniRekor" hidden>🏆 Yeni rekor!</span></p>
+    <button id="tekrarBtn" class="oyun">↻ Tekrar Oyna</button>
+    <button id="menuBtn" class="ikincil">☰ Ana Menü</button>
+    <p class="ipucu klavye">Boşluk tuşu ile de başlayabilirsin</p>
+  </div>
+
+  <!-- Tablet giriş ekranı -->
+  <div id="giris" hidden>
+    <div class="giris-kart kart">
+      <h1>☄️ Göktaşından Kaç</h1>
+      <p class="giris-alt">Vücudunla oyna: kaç, eğil, zıpla!</p>
+      <ul class="kurallar">
+        <li><span>🔴</span>Kırmızı halka: <b>yana kaç</b></li>
+        <li><span>🟡</span>EĞİL! – baş hizası</li>
+        <li><span>🟠</span>KAÇ! – gövde hizası</li>
+        <li><span>🔵</span>ZIPLA! – ayak hizası</li>
+        <li><span>⭐</span>Yıldıza elinle dokun: <b>GÜÇ MODU</b></li>
+      </ul>
+      <button id="girisBasla" class="oyun buyuk">▶ BAŞLA</button>
+      <div class="giris-dugmeler">
+        <button id="girisDemo" class="ikincil">🤖 Kamerasız dene</button>
+        <button id="girisAyar" class="ikincil">⚙ Ayarlar</button>
+      </div>
+      <p class="giris-ipucu">📱 Tableti yatay, kamerası sana bakacak şekilde masaya koy ve
+        <b>2–3 adım geri</b> çekil: başından ayağına kadar görünmelisin.</p>
+      <p id="girisRekor" class="giris-ipucu"></p>
+    </div>
+  </div>
+  <div id="yatayUyari"><div>🔄 Tableti <b>yatay</b> çevir</div></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
